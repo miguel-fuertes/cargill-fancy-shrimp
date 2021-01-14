@@ -14,6 +14,7 @@ const gameTimeInterval = setInterval(() => {
     timeMessage.text = `${gameConfig.gameTime.getTextValue()}`;
     timeMessage.x =
         (applicationScore.renderer.view.width - timeMessage.width) / 2;
+
     if (
         gameConfig.gameStatus === GAME_START &&
         gameConfig.gameMusic.introMusic.isPlayable &&
@@ -44,6 +45,7 @@ const gameTimeInterval = setInterval(() => {
 }, 1000);
 
 function endGame() {
+    //clearPonds();
     gameConfig.gameStatus = GAME_END;
     gameConfig.gameMusic.playMusic.stop();
     if (
@@ -109,11 +111,7 @@ function playGame() {
     initializeGameLogic();
 }
 
-function initializeGameLogic() {
-    gameConfig.gameStatus = GAME_PLAY;
-    gameConfig.gameTime.value = gameConfig.gameTime.initialValue;
-    gameConfig.gameScore.numericValue = 0;
-
+function clearPonds() {
     shrimpsPondA.forEach((shrimp) => {
         containerPondA.removeChild(shrimp);
     });
@@ -123,6 +121,14 @@ function initializeGameLogic() {
     });
     shrimpsPondB.length = 0;
     gameConfig.gameScore.fancyCount = 0;
+}
+
+function initializeGameLogic() {
+    gameConfig.gameStatus = GAME_PLAY;
+    gameConfig.gameTime.value = gameConfig.gameTime.initialValue;
+    gameConfig.gameScore.numericValue = 0;
+
+    clearPonds();
 
     // Populate pond
     for (let i = 0; i < gameConfig.initialShrimpsCount; i++) {
@@ -152,11 +158,14 @@ function initializeGameLogic() {
 
             shrimpsPondB.push(shrimpPondB);
             containerPondB.addChild(shrimpPondB);
-            setTimeout(
-                transformInFancyShrimp,
-                gameConfig.fancyTransformDelay * 1000,
-                shrimpPondB
-            );
+
+            if (gameConfig.gameTime.value >= gameConfig.fancyTransformDelay) {
+                setTimeout(
+                    transformInFancyShrimp,
+                    gameConfig.fancyTransformDelay * 1000,
+                    shrimpPondB
+                );
+            }
         }
     }
 }
@@ -231,12 +240,14 @@ applicationPondB.ticker.add(() => {
                     normalShrimps[j]
                 ) &&
                 gameConfig.gameTime.value > 0
+                && fancyShrimps[i].visible
+                &&  normalShrimps[j].visible
             ) {
+                normalShrimps[j].visible = false;
                 gameConfig.gameScore.updateNumericValue(
                     -1 * normalShrimps[j].shrimpType.scorePoints,
                     scoreAddition
                 );
-                normalShrimps[j].visible = false;
                 if (gameConfig.gameMusic.fancyShrimpDamageSound.isPlayable) {
                     gameConfig.gameMusic.fancyShrimpDamageSound.play({
                         loop: false,
