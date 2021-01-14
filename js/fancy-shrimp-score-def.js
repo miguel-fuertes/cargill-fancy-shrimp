@@ -74,7 +74,7 @@ let scoreAddition = new PIXI.Text(
     })
 );
 scoreAddition.x =
-    (applicationScore.renderer.view.width - scoreAddition.width) / 2 + 65;
+    (applicationScore.renderer.view.width - scoreAddition.width) / 2 + 70;
 scoreAddition.y = 270;
 
 let fancyAlert = new PIXI.Text(
